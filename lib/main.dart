@@ -1,51 +1,61 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(new SampleApp());
+void main() => runApp(new DemoApp());
 
-class SampleApp extends StatelessWidget {
+class DemoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Sample App',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new SampleAppPage(title: 'Sample App'),
+      home: new Scaffold(body: new Signature()),
     );
   }
 }
 
-class SampleAppPage extends StatefulWidget {
-  final String title;
-
-  SampleAppPage({Key key, this.title}) : super(key: key);
-
+class Signature extends StatefulWidget {
   @override
-  _SampleAppPageState createState() => new _SampleAppPageState();
+  _SignatureState createState() => new _SignatureState();
 }
 
-class _SampleAppPageState extends State<SampleAppPage> {
-  String textToShow = "I Like Flutter";
-
-  void _updateText() {
-    setState(() {
-      textToShow = "Flutter is Awesome!";
-    });
-  }
+class _SignatureState extends State<Signature> {
+  List<Offset> _points = [];
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
-      ),
-      body: new Center(child: new Text(textToShow)),
-      floatingActionButton: new FloatingActionButton(
-          tooltip: 'Update Text',
-          child: new Icon(Icons.update),
-          onPressed: () {
-            _updateText();
-          }),
+    return new GestureDetector(
+      onPanUpdate: (DragUpdateDetails details) {
+        setState(() {
+          RenderBox referenceBox = context.findRenderObject();
+          Offset localPosition =
+              referenceBox.globalToLocal(details.globalPosition);
+          _points = new List.from(_points)..add(localPosition);
+        });
+      },
+      onPanEnd: (DragEndDetails details) => _points.add(null),
+      child: new CustomPaint(
+          painter: new SignaturePainter(_points), size: Size.infinite),
     );
+  }
+}
+
+class SignaturePainter extends CustomPainter {
+  SignaturePainter(this.points);
+
+  final List<Offset> points;
+
+  void paint(Canvas canvas, Size size) {
+    Paint paint = new Paint()
+      ..color = Colors.black
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 5.0;
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null) {
+        canvas.drawLine(points[i], points[i + 1], paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(SignaturePainter oldDelegate) {
+    return oldDelegate.points != this.points;
   }
 }
