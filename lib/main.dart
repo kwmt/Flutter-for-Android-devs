@@ -1,38 +1,36 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(new FadeAppTest());
+void main() => runApp(new SampleApp());
 
-class FadeAppTest extends StatelessWidget {
+class SampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Fade Demo',
+      title: 'Sample App',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyFadeTest(title: 'Fade Demo'),
+      home: new SampleAppPage(title: 'Sample App'),
     );
   }
 }
 
-class MyFadeTest extends StatefulWidget {
+class SampleAppPage extends StatefulWidget {
   final String title;
 
-  MyFadeTest({Key key, this.title}) : super(key: key);
+  SampleAppPage({Key key, this.title}) : super(key: key);
 
   @override
-  _MyFadeTest createState() => new _MyFadeTest();
+  _SampleAppPageState createState() => new _SampleAppPageState();
 }
 
-class _MyFadeTest extends State<MyFadeTest> with TickerProviderStateMixin {
-  AnimationController controller;
-  CurvedAnimation curve;
+class _SampleAppPageState extends State<SampleAppPage> {
+  String textToShow = "I Like Flutter";
 
-  @override
-  void initState() {
-    controller = new AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 2000));
-    curve = new CurvedAnimation(parent: controller, curve: Curves.easeIn);
+  void _updateText() {
+    setState(() {
+      textToShow = "Flutter is Awesome!";
+    });
   }
 
   @override
@@ -41,21 +39,12 @@ class _MyFadeTest extends State<MyFadeTest> with TickerProviderStateMixin {
       appBar: new AppBar(
         title: new Text(widget.title),
       ),
-      body: new Center(
-        child: new Container(
-          child: new FadeTransition(
-            opacity: curve,
-            child: new FlutterLogo(
-              size: 100.0,
-            ),
-          ),
-        ),
-      ),
+      body: new Center(child: new Text(textToShow)),
       floatingActionButton: new FloatingActionButton(
-          tooltip: 'Fade',
-          child: new Icon(Icons.brush),
+          tooltip: 'Update Text',
+          child: new Icon(Icons.update),
           onPressed: () {
-            controller.forward();
+            _updateText();
           }),
     );
   }
