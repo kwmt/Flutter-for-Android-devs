@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -33,18 +35,27 @@ class _SampleAppPageState extends State<SampleAppPage> {
     loadData();
   }
 
+  showLoadingDialog() {
+    if (widgets.length == 0) {
+      return true;
+    }
+    return false;
+  }
+
+  getBody() {
+    if (showLoadingDialog()) {
+      return getProgressDialog();
+    }
+    return getListView();
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Sample App"),
       ),
-      body: new ListView.builder(
-        itemCount: widgets.length,
-        itemBuilder: (BuildContext context, int position) {
-          return getRow(position);
-        },
-      ),
+      body: getBody(),
     );
   }
 
@@ -56,10 +67,48 @@ class _SampleAppPageState extends State<SampleAppPage> {
   }
 
   loadData() async {
-    String dataURL = "https://jsonplaceholder.typicode.com/posts";
-    http.Response response = await http.get(dataURL);
+    ReceivePort receivePort = new ReceivePort();
+    await Isolate.spawn(dataLoader, receivePort.sendPort);
+
+    SendPort sendPort = await receivePort.first;
+    List msg = await sendReceive(
+        sendPort, "https://jsonplaceholder.typicode.com/posts");
+
     setState(() {
-      widgets = json.decode(response.body);
+      widgets = msg;
     });
   }
+
+  static dataLoader(SendPort sendPort) async {
+    ReceivePort port = new ReceivePort();
+    sendPort.send(port.sendPort);
+
+    await for (var msg in port) {
+      String data = msg[0];
+      SendPort replyTo = msg[1];
+
+      String dataURL = data;
+      http.Response response = await http.get(dataURL);
+      replyTo.send(json.decode(response.body));
+    }
+  }
+
+  Future sendReceive(SendPort port, msg) {
+    ReceivePort response = new ReceivePort();
+    port.send([msg, response.sendPort]);
+    return response.first;
+  }
+
+  getProgressDialog() {
+    return new Center(
+      child: new CircularProgressIndicator(),
+    );
+  }
+
+  ListView getListView() => new ListView.builder(
+        itemCount: widgets.length,
+        itemBuilder: (BuildContext context, int position) {
+          return getRow(position);
+        },
+      );
 }
