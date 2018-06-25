@@ -1,3 +1,5 @@
+import 'dart:async' show Future;
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -28,6 +30,11 @@ class MyPage extends StatelessWidget {
           children: <Widget>[
             new RaisedButton(
               onPressed: () {
+                if (title == 'Location') {
+                  return Navigator
+                      .of(context)
+                      .pop({"lat": 43.821757, "lon": -79.226392});
+                }
                 Navigator.of(context).pop();
               },
               child: new Text('go back'),
@@ -39,7 +46,14 @@ class MyPage extends StatelessWidget {
   }
 }
 
-class MyAppHome extends StatelessWidget {
+class MyAppHome extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _MyAppHome();
+}
+
+class _MyAppHome extends State<MyAppHome> {
+  String _text;
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -53,10 +67,34 @@ class MyAppHome extends StatelessWidget {
             new ButtonWidget('Go to Page A', '/a'),
             new ButtonWidget('Go to Page B', '/b'),
             new ButtonWidget('Go to Page C', '/c'),
+            new Container(
+                margin: EdgeInsets.only(top: 16.0),
+                child: new RaisedButton(
+                    child: new Text('location'),
+                    onPressed: () {
+                      startActivity(context);
+                    })),
+            new Container(
+              margin: EdgeInsets.only(top: 32.0),
+              child: new Text(_text),
+            )
           ],
         ),
       ),
     );
+  }
+
+  Future startActivity(BuildContext context) async {
+    Map result = await Navigator
+        .of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
+      return new MyPage(title: 'Location');
+    }));
+    if (result != null && result.containsKey('lat')) {
+      setState(() {
+        _text = '$result';
+      });
+    }
   }
 }
 
