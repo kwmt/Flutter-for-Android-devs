@@ -1,58 +1,37 @@
-import 'dart:async' show Future;
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(new MaterialApp(
-    home: new MyAppHome(),
-    routes: <String, WidgetBuilder>{
-      '/a': (BuildContext context) => new MyPage(title: 'Page A'),
-      '/b': (BuildContext context) => new MyPage(title: 'Page B'),
-      '/c': (BuildContext context) => new MyPage(title: 'Page C'),
-    },
+    home: new SampleAppPage(),
   ));
 }
 
-class MyPage extends StatelessWidget {
-  final String title;
-
-  MyPage({this.title});
-
+class SampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(this.title),
-      ),
-      body: new Center(
-        child: new Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            new RaisedButton(
-              onPressed: () {
-                if (title == 'Location') {
-                  return Navigator
-                      .of(context)
-                      .pop({"lat": 43.821757, "lon": -79.226392});
-                }
-                Navigator.of(context).pop();
-              },
-              child: new Text('go back'),
-            ),
-          ],
-        ),
-      ),
+    return new MaterialApp(
+      title: "Sample App",
+      home: new SampleAppPage(),
     );
   }
 }
 
-class MyAppHome extends StatefulWidget {
+class SampleAppPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new _MyAppHome();
+  _SampleAppPageState createState() => new _SampleAppPageState();
 }
 
-class _MyAppHome extends State<MyAppHome> {
-  String _text;
+class _SampleAppPageState extends State<SampleAppPage> {
+  List widgets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,60 +39,27 @@ class _MyAppHome extends State<MyAppHome> {
       appBar: new AppBar(
         title: new Text("Sample App"),
       ),
-      body: new Center(
-        child: new Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            new ButtonWidget('Go to Page A', '/a'),
-            new ButtonWidget('Go to Page B', '/b'),
-            new ButtonWidget('Go to Page C', '/c'),
-            new Container(
-                margin: EdgeInsets.only(top: 16.0),
-                child: new RaisedButton(
-                    child: new Text('location'),
-                    onPressed: () {
-                      startActivity(context);
-                    })),
-            new Container(
-              margin: EdgeInsets.only(top: 32.0),
-              child: new Text(_text),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future startActivity(BuildContext context) async {
-    Map result = await Navigator
-        .of(context)
-        .push(new MaterialPageRoute(builder: (BuildContext context) {
-      return new MyPage(title: 'Location');
-    }));
-    if (result != null && result.containsKey('lat')) {
-      setState(() {
-        _text = '$result';
-      });
-    }
-  }
-}
-
-class ButtonWidget extends StatelessWidget {
-  final String title;
-  final String destination;
-
-  ButtonWidget(this.title, this.destination);
-
-  @override
-  Widget build(BuildContext context) {
-    return new Container(
-      padding: EdgeInsets.all(8.0),
-      child: new RaisedButton(
-        onPressed: () {
-          Navigator.of(context).pushNamed(destination);
+      body: new ListView.builder(
+        itemCount: widgets.length,
+        itemBuilder: (BuildContext context, int position) {
+          return getRow(position);
         },
-        child: new Text(title),
       ),
     );
+  }
+
+  Widget getRow(int position) {
+    return new Padding(
+      padding: new EdgeInsets.all(10.0),
+      child: new Text("Row ${widgets[position]["title"]}"),
+    );
+  }
+
+  loadData() async {
+    String dataURL = "https://jsonplaceholder.typicode.com/posts";
+    http.Response response = await http.get(dataURL);
+    setState(() {
+      widgets = json.decode(response.body);
+    });
   }
 }
