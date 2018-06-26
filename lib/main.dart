@@ -1,26 +1,33 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(new ScrollViewSample());
+  runApp(new GestureSample());
 }
 
-class ScrollViewSample extends StatelessWidget {
+class GestureSample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-        title: 'ScrollViewSample',
+        title: 'GestureSample',
         home: new Scaffold(
           body: new ListView(
-            children: createSampleList(),
+            children: <Widget>[
+              new RaisedButton(
+                onPressed: () {
+                  print("click");
+                },
+                child: new Text("Button"),
+              ),
+              new GestureDetector(
+                child: new FlutterLogo(
+                  size: 200.0,
+                ),
+                onTap: () {
+                  print("tap");
+                },
+              )
+            ],
           ),
         ));
-  }
-
-  createSampleList() {
-    List<Widget> list = new List();
-    for (var i = 0; i < 100; i++) {
-      list.add(new Text('Row $i'));
-    }
-    return list;
   }
 }
