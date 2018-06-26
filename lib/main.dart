@@ -1,88 +1,46 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(new MaterialApp(
-    home: new SampleAppPage(),
-  ));
+  runApp(new Center(child: new LifecycleWatcher()));
 }
 
-class SampleApp extends StatelessWidget {
+class LifecycleWatcher extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: "Sample App",
-      home: new SampleAppPage(),
-    );
-  }
+  _LifecycleWatcherState createState() => new _LifecycleWatcherState();
 }
 
-class SampleAppPage extends StatefulWidget {
-  @override
-  _SampleAppPageState createState() => new _SampleAppPageState();
-}
-
-class _SampleAppPageState extends State<SampleAppPage> {
-  List widgets = [];
+class _LifecycleWatcherState extends State<LifecycleWatcher>
+    with WidgetsBindingObserver {
+  AppLifecycleState _lastLifecycleState;
 
   @override
   void initState() {
     super.initState();
-    loadData();
+    WidgetsBinding.instance.addObserver(this);
   }
 
-  showLoadingDialog() {
-    if (widgets.length == 0) {
-      return true;
-    }
-    return false;
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
-  getBody() {
-    if (showLoadingDialog()) {
-      return getProgressDialog();
-    }
-    return getListView();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    setState(() {
+      print(state);
+      _lastLifecycleState = state;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Sample App"),
-      ),
-      body: getBody(),
-    );
+    if (_lastLifecycleState == null) {
+      return new Text('This widget has not observed any lifecycle changes.',
+          textDirection: TextDirection.ltr);
+    }
+    return new Text(
+        'The most recent lifecycle state this widget observed was: $_lastLifecycleState.',
+        textDirection: TextDirection.ltr);
   }
-
-  Widget getRow(int position) {
-    return new Padding(
-      padding: new EdgeInsets.all(10.0),
-      child: new Text("Row ${widgets[position]["title"]}"),
-    );
-  }
-
-  loadData() async {
-    String dataURL = "https://jsonplaceholder.typicode.com/posts";
-    http.Response response = await http.get(dataURL);
-
-    setState(() {
-      widgets = json.decode(response.body);
-    });
-  }
-
-  getProgressDialog() {
-    return new Center(
-      child: new CircularProgressIndicator(),
-    );
-  }
-
-  ListView getListView() => new ListView.builder(
-        itemCount: widgets.length,
-        itemBuilder: (BuildContext context, int position) {
-          return getRow(position);
-        },
-      );
 }
