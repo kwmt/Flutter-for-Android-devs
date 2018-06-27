@@ -29,9 +29,14 @@ class SampleAppState extends State<SampleApp> {
   _getListDate() {
     List<Widget> widgets = [];
     for (int i = 0; i < 100; i++) {
-      widgets.add(Padding(
-        padding: EdgeInsets.all(10.0),
-        child: Text("Row $i"),
+      widgets.add(GestureDetector(
+        child: Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Text("Row $i"),
+        ),
+        onTap: () {
+          print("Row Tapped $i");
+        },
       ));
     }
     return widgets;
