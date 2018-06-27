@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 void main() {
   runApp(new MaterialApp(
-    title: 'Fade Demo',
+    title: 'Sample App',
     theme: new ThemeData(
       primarySwatch: Colors.blue,
     ),
@@ -15,35 +15,25 @@ class SampleApp extends StatefulWidget {
   SampleAppState createState() => new SampleAppState();
 }
 
-class SampleAppState extends State<SampleApp> with TickerProviderStateMixin {
-  AnimationController controller;
-  CurvedAnimation curve;
-
-  @override
-  void initState() {
-    controller = new AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
-    curve = new CurvedAnimation(parent: controller, curve: Curves.easeIn);
-  }
-
+class SampleAppState extends State<SampleApp> {
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        body: new Center(
-      child: new GestureDetector(
-        child: new RotationTransition(
-            turns: curve,
-            child: new FlutterLogo(
-              size: 200.0,
-            )),
-        onDoubleTap: () {
-          if (controller.isCompleted) {
-            controller.reverse();
-          } else {
-            controller.forward();
-          }
-        },
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Sample App"),
       ),
-    ));
+      body: ListView(children: _getListDate()),
+    );
+  }
+
+  _getListDate() {
+    List<Widget> widgets = [];
+    for (int i = 0; i < 100; i++) {
+      widgets.add(Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Text("Row $i"),
+      ));
+    }
+    return widgets;
   }
 }
