@@ -33,7 +33,11 @@ class SampleAppState extends State<SampleApp> {
       appBar: AppBar(
         title: Text("Sample App"),
       ),
-      body: ListView(children: widgets),
+      body: ListView.builder(
+          itemCount: widgets.length,
+          itemBuilder: (BuildContext context, int position) {
+            return _getRow(position);
+          }),
     );
   }
 
@@ -46,7 +50,6 @@ class SampleAppState extends State<SampleApp> {
       onTap: () {
         print("Row Tapped $i");
         setState(() {
-          widgets = List.from(widgets);
           widgets.add(_getRow(widgets.length));
         });
       },
