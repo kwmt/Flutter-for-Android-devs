@@ -16,43 +16,17 @@ class SampleApp extends StatefulWidget {
 }
 
 class SampleAppState extends State<SampleApp> {
-  List<Widget> widgets = [];
-
-  @override
-  void initState() {
-    super.initState();
-
-    for (int i = 0; i < 10; i++) {
-      widgets.add(_getRow(i));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Sample App"),
       ),
-      body: ListView.builder(
-          itemCount: widgets.length,
-          itemBuilder: (BuildContext context, int position) {
-            return _getRow(position);
-          }),
-    );
-  }
-
-  Widget _getRow(int i) {
-    return GestureDetector(
-      child: Padding(
-        padding: EdgeInsets.all(10.0),
-        child: Text("Row $i"),
-      ),
-      onTap: () {
-        print("Row Tapped $i");
-        setState(() {
-          widgets.add(_getRow(widgets.length));
-        });
-      },
+      body: Center(
+          child: Text(
+        'This is a custom font text',
+        style: TextStyle(fontFamily: 'MyCustomFont'),
+      )),
     );
   }
 }
