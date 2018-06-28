@@ -16,29 +16,40 @@ class SampleApp extends StatefulWidget {
 }
 
 class SampleAppState extends State<SampleApp> {
+  List<Widget> widgets = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    for (int i = 0; i < 10; i++) {
+      widgets.add(_getRow(i));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Sample App"),
       ),
-      body: ListView(children: _getListDate()),
+      body: ListView(children: widgets),
     );
   }
 
-  _getListDate() {
-    List<Widget> widgets = [];
-    for (int i = 0; i < 100; i++) {
-      widgets.add(GestureDetector(
-        child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Text("Row $i"),
-        ),
-        onTap: () {
-          print("Row Tapped $i");
-        },
-      ));
-    }
-    return widgets;
+  Widget _getRow(int i) {
+    return GestureDetector(
+      child: Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Text("Row $i"),
+      ),
+      onTap: () {
+        print("Row Tapped $i");
+        setState(() {
+          widgets = List.from(widgets);
+          widgets.add(_getRow(widgets.length));
+        });
+      },
+    );
   }
 }
