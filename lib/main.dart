@@ -33,12 +33,13 @@ class SampleAppState extends State<SampleApp> {
       appBar: AppBar(
         title: Text("Sample App"),
       ),
-      body: ListView.builder(
+      body: Container(child: Column(
+        children: <Widget>[ ListView.builder(
           itemCount: widgets.length,
           itemBuilder: (BuildContext context, int position) {
             return _getRow(position);
-          }),
-    );
+          }),]),
+    ));
   }
 
   Widget _getRow(int i) {
